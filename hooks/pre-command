@@ -17,7 +17,7 @@ TMPDIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'buildkiteXXXX')
 
 echo "~~~ :buildkite: Requesting OIDC token from Buildkite"
 
-buildkite-agent oidc request-token --audience "$BUILDKITE_PLUGIN_GCP_WORKLOAD_IDENTITY_FEDERATION_AUDIENCE" --lifetime "${BUILDKITE_PLUGIN_GCP_WORKLOAD_IDENTITY_FEDERATION_LIFETIME:-0}" > "$TMPDIR"/token.json
+buildkite-agent oidc request-token --audience "$BUILDKITE_PLUGIN_GCP_WORKLOAD_IDENTITY_FEDERATION_AUDIENCE" --lifetime "${BUILDKITE_PLUGIN_GCP_WORKLOAD_IDENTITY_FEDERATION_LIFETIME:-0}" > "$TMPDIR"/token.txt
 
 echo "~~~ :gcloud: Configuring Google Cloud credentials"
 
@@ -29,7 +29,10 @@ cat << JSON > "$TMPDIR"/credentials.json
   "token_url": "https://sts.googleapis.com/v1/token",
   "service_account_impersonation_url": "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/$BUILDKITE_PLUGIN_GCP_WORKLOAD_IDENTITY_FEDERATION_SERVICE_ACCOUNT:generateAccessToken",
   "credential_source": {
-    "file": "$TMPDIR/token.json"
+    "file": "$TMPDIR/token.txt",
+    "format": {
+      "type": "text"
+    }
   }
 }
 JSON
